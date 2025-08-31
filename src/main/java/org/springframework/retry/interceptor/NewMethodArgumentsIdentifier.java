@@ -17,19 +17,17 @@
 package org.springframework.retry.interceptor;
 
 /**
- * Strategy interface to distinguish new arguments from ones that have been processed
- * before, e.g. by examining a message flag.
+ * 策略接口，用于区分新参数和已被处理过的参数，
+ * 例如通过检查消息标志来实现。
  *
  * @author Dave Syer
- *
  */
 public interface NewMethodArgumentsIdentifier {
 
 	/**
-	 * Inspect the arguments and determine if they have never been processed before. The
-	 * safest choice when the answer is indeterminate is 'false'.
-	 * @param args the current method arguments.
-	 * @return true if the item is known to have never been processed before.
+     * 检查参数并判断它们是否从未被处理过。如果无法确定，最安全的选择是返回 false。
+     * @param args 当前方法参数。
+     * @return 如果已知该项从未被处理过，则返回 true。
 	 */
 	boolean isNew(Object[] args);
 

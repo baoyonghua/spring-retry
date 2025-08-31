@@ -16,28 +16,22 @@
 
 package org.springframework.retry.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AliasFor;
 
+import java.lang.annotation.*;
+
 /**
- * Global enabler for <code>@Retryable</code> annotations in Spring beans. If this is
- * declared on any <code>@Configuration</code> in the context then beans that have
- * retryable methods will be proxied and the retry handled according to the metadata in
- * the annotations.
+ * 全局启用 Spring Bean 中 <code>@Retryable</code> 注解的功能。如果在上下文中的任意
+ * <code>@Configuration</code> 上声明了该注解，则包含<code>@Retryable</code>注解的方法所属的 Bean 会被代理，
+ * 并根据注解中的元数据处理重试逻辑。
  *
  * @author Dave Syer
  * @author Yanming Zhou
  * @author Ruslan Stelmachenko
  * @since 1.1
- *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -46,22 +40,33 @@ import org.springframework.core.annotation.AliasFor;
 @Documented
 public @interface EnableRetry {
 
-	/**
-	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed to
-	 * standard Java interface-based proxies. The default is {@code false}.
-	 * @return whether to proxy or not to proxy the class
-	 */
-	@AliasFor(annotation = EnableAspectJAutoProxy.class)
-	boolean proxyTargetClass() default false;
+    /**
+     * 指示是否创建基于子类（CGLIB）的代理，而不是标准的 Java 接口代理。默认值为 {@code false}。
+     *
+     * @return 是否对类进行代理
+     */
+    @AliasFor(annotation = EnableAspectJAutoProxy.class)
+    boolean proxyTargetClass() default false;
 
-	/**
-	 * Indicate the order in which the {@link RetryConfiguration} AOP <b>advice</b> should
-	 * be applied.
-	 * <p>
-	 * The default is {@code Ordered.LOWEST_PRECEDENCE - 1} in order to make sure the
-	 * advice is applied before other advices with {@link Ordered#LOWEST_PRECEDENCE} order
-	 * (e.g. an advice responsible for {@code @Transactional} behavior).
-	 */
-	int order() default Ordered.LOWEST_PRECEDENCE - 1;
+    /**
+     * 指定 {@link RetryConfiguration} AOP <b>通知</b> 应该被应用的顺序。
+     * <p>
+     * 默认值为 {@code Ordered.LOWEST_PRECEDENCE - 1}，以确保该通知会在其他顺序为 {@link Ordered#LOWEST_PRECEDENCE} 的通知之前进行应用
+     * （例如负责 {@code @Transactional} 行为的通知）。
+     * <pre>
+     *  假设你有一个方法同时使用了 `@Retryable` 和 `@Transactional`：
+     *  &#064;Retryable
+     *  &#064;Transactional
+     *  public void doSomething() {
+     *     // 业务逻辑
+     *  }
+     *
+     *  如果 `order` 设置为默认值，那么重试逻辑会在事务逻辑之前应用。
+     *  如果你想让事务逻辑先于重试逻辑执行，可以通过如下方式调整顺序：
+     *  <code>@EnableRetry(order  = Ordered.HIGHEST_PRECEDENCE)</code>
+     *  这样，重试切面的优先级就会更高，先于事务切面执行
+     * </pre>
+     */
+    int order() default Ordered.LOWEST_PRECEDENCE - 1;
 
 }

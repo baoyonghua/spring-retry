@@ -21,11 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A {@link Classifier} for a parameterised object type based on a map. Classifies objects
- * according to their inheritance relation with the supplied type map. If the object to be
- * classified is one of the keys of the provided map, or is a subclass of one of the keys,
- * then the map entry value for that key is returned. Otherwise, returns the default value
- * which is null by default.
+ * 一个基于映射的参数化对象类型的 {@link Classifier}。
+ * 根据与提供的类型映射的继承关系对对象进行分类。
+ * 如果要分类的对象是映射中的某个键，或是某个键的子类，则返回该键对应的值。否则，返回默认值（默认为 null）。
  *
  * @author Dave Syer
  * @author Gary Russell
@@ -33,11 +31,16 @@ import java.util.concurrent.ConcurrentMap;
  * @param <T> the type of the thing to classify
  * @param <C> the output of the classifier
  */
-@SuppressWarnings("serial")
 public class SubclassClassifier<T, C> implements Classifier<T, C> {
 
+    /**
+     * 实际的映射
+     */
 	private ConcurrentMap<Class<? extends T>, C> classified;
 
+    /**
+     * 当{@link #classified}中没有找到匹配的键时，返回的默认值
+     */
 	private C defaultValue;
 
 	/**

@@ -19,61 +19,58 @@ package org.springframework.retry;
 import java.io.Serializable;
 
 /**
- * A {@link RetryPolicy} is responsible for allocating and managing resources needed by
- * {@link RetryOperations}. The {@link RetryPolicy} allows retry operations to be aware of
- * their context. Context can be internal to the retry framework, e.g. to support nested
- * retries. Context can also be external, and the {@link RetryPolicy} provides a uniform
- * API for a range of different platforms for the external context.
+ * {@link RetryPolicy} 负责分配和管理 {@link RetryOperations} 所需的所有资源
+ * {@link RetryPolicy} 使得重试操作能够感知其上下文 [RetryContext]。
+ * 上下文[RetryContext]可以是SpringRetry框架的内部，例如支持嵌套重试，
+ * 也可以是外部的，{@link RetryPolicy} 为不同平台的外部上下文提供统一的 API。
  *
  * @author Dave Syer
  * @author Emanuele Ivaldi
- *
  */
 public interface RetryPolicy extends Serializable {
 
-	/**
-	 * The value returned by {@link RetryPolicy#getMaxAttempts()} when the policy doesn't
-	 * provide a maximum number of attempts before failure
-	 */
-	int NO_MAXIMUM_ATTEMPTS_SET = -1;
+    /**
+     * 当策略没有提供失败前最大尝试次数时，由 {@link RetryPolicy#getMaxAttempts（）} 返回的值。
+     */
+    int NO_MAXIMUM_ATTEMPTS_SET = -1;
 
-	/**
-	 * @param context the current retry status
-	 * @return true if the operation can proceed
-	 */
-	boolean canRetry(RetryContext context);
+    /**
+     * @param context the current retry status
+     * @return true if the operation can proceed
+     */
+    boolean canRetry(RetryContext context);
 
-	/**
-	 * Acquire resources needed for the retry operation. The callback is passed in so that
-	 * marker interfaces can be used and a manager can collaborate with the callback to
-	 * set up some state in the status token.
-	 * @param parent the parent context if we are in a nested retry.
-	 * @return a {@link RetryContext} object specific to this policy.
-	 *
-	 */
-	RetryContext open(RetryContext parent);
+    /**
+     * 获取重试操作所需的资源。传入回调对象是为了可以使用标记接口，并且管理器可以与回调协作，以在状态令牌中设置一些状态。
+     *
+     * @param parent 如果是嵌套重试，则为父上下文。
+     * @return 针对该策略特定的 {@link RetryContext} 对象。
+     */
+    RetryContext open(RetryContext parent);
 
-	/**
-	 * @param context a retry status created by the {@link #open(RetryContext)} method of
-	 * this policy.
-	 */
-	void close(RetryContext context);
+    /**
+     * 关闭资源
+     *
+     * @param context a retry status created by the {@link #open(RetryContext)} method of
+     *                this policy.
+     */
+    void close(RetryContext context);
 
-	/**
-	 * Called once per retry attempt, after the callback fails.
-	 * @param context the current status object.
-	 * @param throwable the exception to throw
-	 */
-	void registerThrowable(RetryContext context, Throwable throwable);
+    /**
+     * 在回调失败之后，每次重试尝试都会调用一次
+     *
+     * @param context   the current status object.
+     * @param throwable the exception to throw
+     */
+    void registerThrowable(RetryContext context, Throwable throwable);
 
-	/**
-	 * Called to understand if the policy has a fixed number of maximum attempts before
-	 * failure
-	 * @return -1 if the policy doesn't provide a fixed number of maximum attempts before
-	 * failure, the number of maximum attempts before failure otherwise
-	 */
-	default int getMaxAttempts() {
-		return NO_MAXIMUM_ATTEMPTS_SET;
-	}
+    /**
+     * 用于判断该策略是否有固定的最大重试次数
+     *
+     * @return 如果策略未提供固定的最大重试次数则返回 -1，否则返回最大重试次数
+     */
+    default int getMaxAttempts() {
+        return NO_MAXIMUM_ATTEMPTS_SET;
+    }
 
 }

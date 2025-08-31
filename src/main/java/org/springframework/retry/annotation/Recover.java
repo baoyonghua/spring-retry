@@ -23,12 +23,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for a method invocation that is a recovery handler. A suitable recovery
- * handler has a first parameter of type Throwable (or a subtype of Throwable) and a
- * return value of the same type as the <code>@Retryable</code> method to recover from.
- * The Throwable first argument is optional (but a method without it will only be called
- * if no others match). Subsequent arguments are populated from the argument list of the
- * failed method in order.
+ * 用于方法调用的恢复处理器的注解。合适的恢复处理器方法的第一个参数应为 Throwable 类型（或其子类），
+ * 并且返回值类型应与需要恢复的 <code>@Retryable</code> 方法相同。
+ * Throwable 类型的第一个参数是可选的（但如果没有该参数，只有在没有其他方法匹配时才会被调用）。
+ * 后续参数会按照失败方法的参数列表顺序进行填充。
  *
  * @author Dave Syer
  * @since 2.0

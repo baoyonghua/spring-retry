@@ -20,89 +20,84 @@ import org.springframework.core.AttributeAccessor;
 import org.springframework.lang.Nullable;
 
 /**
- * Low-level access to ongoing retry operation. Normally not needed by clients, but can be
- * used to alter the course of the retry, e.g. force an early termination.
+ * 重试上下文
+ * 对正在进行的重试操作提供低层级访问。通常客户端不需要使用，但可以用于改变重试的过程，例如强制提前终止。
  *
  * @author Dave Syer
  * @author Emanuele Ivaldi
  * @author Marcin Zajączkowski
- *
  */
 public interface RetryContext extends AttributeAccessor {
 
-	/**
-	 * Retry context attribute name for reporting key. Can be used for reporting purposes,
-	 * for instance in a retry listener, to accumulate data about the performance of a
-	 * retry.
-	 */
-	String NAME = "context.name";
+    /**
+     * 重试上下文属性名称用于报告关键指标。它可用于报告目的，例如在重试监听器中，以累积有关性能数据。
+     */
+    String NAME = "context.name";
 
-	/**
-	 * Retry context attribute name for state key. Can be used to identify a stateful
-	 * retry from its context.
-	 */
-	String STATE_KEY = "context.state";
+    /**
+     * 重试上下文中状态键的属性名称。可用于通过其上下文识别有状态的重试。
+     */
+    String STATE_KEY = "context.state";
 
-	/**
-	 * Retry context attribute that is non-null (and true) if the context has been closed.
-	 */
-	String CLOSED = "context.closed";
+    /**
+     * 如果上下文已关闭，则重试上下文中的该属性为非空（且为真）。
+     */
+    String CLOSED = "context.closed";
 
-	/**
-	 * Retry context attribute that is non-null (and true) if the recovery path was taken.
-	 */
-	String RECOVERED = "context.recovered";
+    /**
+     * 如果采取了恢复路径，则重试上下文中该属性为非空（且为真）。
+     */
+    String RECOVERED = "context.recovered";
 
-	/**
-	 * Retry context attribute that is non-null (and true) if the retry was exhausted.
-	 */
-	String EXHAUSTED = "context.exhausted";
+    /**
+     * 如果重试次数已用完，则重试上下文该属性为非空（且为真）。
+     */
+    String EXHAUSTED = "context.exhausted";
 
-	/**
-	 * Retry context attribute that is non-null (and true) if the exception is not
-	 * recoverable.
-	 */
-	String NO_RECOVERY = "context.no-recovery";
+    /**
+     * 如果异常不可恢复，则重试上下文该属性为非空（且为真）。
+     */
+    String NO_RECOVERY = "context.no-recovery";
 
-	/**
-	 * Retry context attribute that represent the maximum number of attempts for policies
-	 * that provide a maximum number of attempts before failure. For other policies the
-	 * value returned is {@link RetryPolicy#NO_MAXIMUM_ATTEMPTS_SET}
-	 */
-	String MAX_ATTEMPTS = "context.max-attempts";
+    /**
+     * 表示在失败前提供最大尝试次数的策略的最大尝试次数。对于其他策略，返回的值为 `RetryPolicy.NO_MAXIMUM_ATTEMPTS_SET`。
+     */
+    String MAX_ATTEMPTS = "context.max-attempts";
 
-	/**
-	 * Signal to the framework that no more attempts should be made to try or retry the
-	 * current {@link RetryCallback}.
-	 */
-	void setExhaustedOnly();
+    /**
+     * 向框架发出信号，表示不应再重试当前的`RetryCallback`。
+     */
+    void setExhaustedOnly();
 
-	/**
-	 * Public accessor for the exhausted flag {@link #setExhaustedOnly()}.
-	 * @return true if the flag has been set.
-	 */
-	boolean isExhaustedOnly();
+    /**
+     * 用于访问已耗尽标志的公共访问器 {@link #setExhaustedOnly（）}。
+     *
+     * @return true if the flag has been set.
+     */
+    boolean isExhaustedOnly();
 
-	/**
-	 * Accessor for the parent context if retry blocks are nested.
-	 * @return the parent or null if there is none.
-	 */
-	@Nullable RetryContext getParent();
+    /**
+     * 如果重试是嵌套的，则为父上下文提供访问器。
+     *
+     * @return the parent or null if there is none.
+     */
+    @Nullable
+    RetryContext getParent();
 
-	/**
-	 * Counts the number of retry attempts. Before the first attempt this counter is zero,
-	 * and before the first and subsequent attempts it should increment accordingly.
-	 * @return the number of retries.
-	 */
-	int getRetryCount();
+    /**
+     * 计数重试次数。在首次尝试前，该计数器为0，在首次尝试及后续尝试前，应相应地增加计数。
+     *
+     * @return the number of retries.
+     */
+    int getRetryCount();
 
-	/**
-	 * Accessor for the exception object that caused the current retry.
-	 * @return the last exception that caused a retry, or possibly null. It will be null
-	 * if this is the first attempt and it finishes successfully, but also if the
-	 * enclosing policy decides not to provide it (e.g. because of concerns about memory
-	 * usage).
-	 */
-	@Nullable Throwable getLastThrowable();
+    /**
+     * 引发当前重试的异常对象的访问器。
+     *
+     * @return 最后一个引发重试的异常，也可能是 null。
+     * 如果这是第一次尝试且成功完成，或者如果包含的策略决定不提供它（例如，出于内存使用考虑），则该值将为 null。
+     */
+    @Nullable
+    Throwable getLastThrowable();
 
 }

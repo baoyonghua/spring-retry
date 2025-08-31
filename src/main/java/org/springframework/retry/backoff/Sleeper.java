@@ -18,18 +18,18 @@ package org.springframework.retry.backoff;
 import java.io.Serializable;
 
 /**
- * Strategy interface for backoff policies to delegate the pausing of execution.
+ * 回退策略接口，用于将执行暂停的操作委托出去。
  *
  * @author Dave Syer
- *
  */
 public interface Sleeper extends Serializable {
 
-	/**
-	 * Pause for the specified period using whatever means available.
-	 * @param backOffPeriod the backoff period
-	 * @throws InterruptedException the exception when interrupted
-	 */
-	void sleep(long backOffPeriod) throws InterruptedException;
+    /**
+     * 使用可用的任意方式暂停指定的时间。
+     *
+     * @param backOffPeriod 回退等待的时间
+     * @throws InterruptedException 如果线程被中断则抛出该异常
+     */
+    void sleep(long backOffPeriod) throws InterruptedException;
 
 }

@@ -19,23 +19,49 @@ package org.springframework.retry.policy;
 import org.springframework.retry.RetryContext;
 
 /**
- * Simple map-like abstraction for stateful retry policies to use when storing and
- * retrieving {@link RetryContext} instances. A null key should never be passed in by the
- * caller, but if it is then implementations are free to discard the context instead of
- * saving it (null key means "no information").
+ * 用于有状态重试策略在存储和检索 {@link RetryContext} 实例时使用的RetryContext缓存接口
+ * <p>
+ * 调用方不应传入 null 键，但如果传入，具体实现可以选择丢弃该上下文（null 键表示“无信息”），而不是保存它。
+ * </p>
+ * <p>
+ * 对于RetryContext所对应的唯一键，是由 {@link org.springframework.retry.RetryState}生成的
+ * </p>
  *
  * @author Dave Syer
  * @see MapRetryContextCache
- *
  */
 public interface RetryContextCache {
 
-	RetryContext get(Object key);
+    /**
+     * 根据给定的键获取 {@link RetryContext} 实例
+     *
+     * @param key
+     * @return
+     */
+    RetryContext get(Object key);
 
-	void put(Object key, RetryContext context) throws RetryCacheCapacityExceededException;
+    /**
+     * 缓存给定键的 {@link RetryContext} 实例
+     *
+     * @param key
+     * @param context
+     * @throws RetryCacheCapacityExceededException
+     */
+    void put(Object key, RetryContext context) throws RetryCacheCapacityExceededException;
 
-	void remove(Object key);
+    /**
+     * 从缓存中移除给定键的 {@link RetryContext} 实例
+     *
+     * @param key
+     */
+    void remove(Object key);
 
-	boolean containsKey(Object key);
+    /**
+     * 检查缓存中是否存在给定键的 {@link RetryContext} 实例
+     *
+     * @param key
+     * @return
+     */
+    boolean containsKey(Object key);
 
 }

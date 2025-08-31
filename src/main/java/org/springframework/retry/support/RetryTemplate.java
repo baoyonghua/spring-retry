@@ -38,6 +38,7 @@ import org.springframework.retry.backoff.BackOffContext;
 import org.springframework.retry.backoff.BackOffInterruptedException;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.NoBackOffPolicy;
+import org.springframework.retry.interceptor.StatefulRetryOperationsInterceptor;
 import org.springframework.retry.policy.MapRetryContextCache;
 import org.springframework.retry.policy.RetryContextCache;
 import org.springframework.retry.policy.SimpleRetryPolicy;
@@ -98,6 +99,10 @@ public class RetryTemplate implements RetryOperations {
 
 	private RetryContextCache retryContextCache = new MapRetryContextCache();
 
+    /**
+     * 是否在所有重试尝试耗尽时抛出最后一个异常或将其包装到 {@link ExhaustedRetryException} 中。默认为 {@code false}；
+     * 仅在有状态重生的情况下应用，例如 {@link StatefulRetryOperationsInterceptor}。
+     */
 	private boolean throwLastExceptionOnExhausted;
 
 	/**

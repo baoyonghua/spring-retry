@@ -23,15 +23,26 @@ import org.springframework.retry.RetryPolicy;
 /**
  * @author Dave Syer
  */
-@SuppressWarnings("serial")
 public class RetryContextSupport extends AttributeAccessorSupport implements RetryContext {
 
+    /**
+     * 父上下文，如果没有父上下文则为 null
+     */
 	private final RetryContext parent;
 
+    /**
+     * 如果为 true，则表示重试操作已经终止（不再允许重试）
+     */
 	private volatile boolean terminate = false;
 
+    /**
+     * 已经进行的重试次数
+     */
 	private volatile int count;
 
+    /**
+     * 上一次导致重试的异常
+     */
 	private volatile Throwable lastException;
 
 	public RetryContextSupport(RetryContext parent) {

@@ -16,19 +16,19 @@
 package org.springframework.retry.interceptor;
 
 /**
- * Interface that allows method parameters to be identified and tagged by a unique key.
+ * 允许通过唯一键标识和标记方法参数的接口。
  *
  * @author Dave Syer
  *
  */
 public interface MethodArgumentsKeyGenerator {
 
-	/**
-	 * Get a unique identifier for the item that can be used to cache it between calls if
-	 * necessary, and then identify it later.
-	 * @param item the current method arguments (may be null if there are none).
-	 * @return a unique identifier.
-	 */
-	Object getKey(Object[] item);
+    /**
+     * 获取可用于在多次调用之间缓存并随后识别该项的唯一标识符。
+     *
+     * @param item 当前方法参数（如果没有参数则可能为 null）。
+     * @return 唯一标识符。
+     */
+    Object getKey(Object[] item);
 
 }

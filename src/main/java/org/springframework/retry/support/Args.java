@@ -26,21 +26,12 @@ package org.springframework.retry.support;
  * @author Gary Russell
  * @since 2.0
  */
-public class Args {
+public record Args(Object[] args) {
 
-	/**
-	 * An empty {@link Args} with 100 null arguments.
-	 */
-	public static final Args NO_ARGS = new Args(new Object[100]);
+    /**
+     * An empty {@link Args} with 100 null arguments.
+     */
+    public static final Args NO_ARGS = new Args(new Object[100]);
 
-	private final Object[] args;
-
-	public Args(Object[] args) {
-		this.args = args;
-	}
-
-	public Object[] getArgs() {
-		return args;
-	}
 
 }

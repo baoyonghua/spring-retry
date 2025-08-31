@@ -1,176 +1,1 @@
-/*
- * Copyright 2014-2023 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package org.springframework.retry.annotation;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.springframework.core.annotation.AliasFor;
-
-/**
- * Annotation for a method invocation that is retryable.
- *
- * @author Dave Syer
- * @author Artem Bilan
- * @author Gary Russell
- * @author Maksim Kita
- * @author Roman Akentev
- * @since 1.1
- *
- */
-@Target({ ElementType.METHOD, ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Retryable {
-
-	/**
-	 * Name of method in this class to use for recover. Method had to be marked with
-	 * {@link Recover} annotation.
-	 * @return the name of recover method
-	 */
-	String recover() default "";
-
-	/**
-	 * Retry interceptor bean name to be applied for retryable method. Is mutually
-	 * exclusive with other attributes.
-	 * @return the retry interceptor bean name
-	 */
-	String interceptor() default "";
-
-	/**
-	 * Exception types that are retryable. Defaults to empty (and if exclude is also empty
-	 * all exceptions are retried).
-	 * @return exception types to retry
-	 * @deprecated in favor of {@link #retryFor()}
-	 */
-	@Deprecated
-	Class<? extends Throwable>[] value() default {};
-
-	/**
-	 * Exception types that are retryable. Defaults to empty (and, if exclude is also
-	 * empty, all exceptions are retried).
-	 * @return exception types to retry
-	 * @deprecated in favor of {@link #retryFor()}.
-	 */
-	@AliasFor("retryFor")
-	@Deprecated
-	Class<? extends Throwable>[] include() default {};
-
-	/**
-	 * Exception types that are retryable. Defaults to empty (and, if noRetryFor is also
-	 * empty, all exceptions are retried).
-	 * @return exception types to retry
-	 * @since 2.0
-	 */
-	@AliasFor("include")
-	Class<? extends Throwable>[] retryFor() default {};
-
-	/**
-	 * Exception types that are not retryable. Defaults to empty (and if include is also
-	 * empty all exceptions are retried). If includes is empty but exclude is not, all not
-	 * excluded exceptions are retried
-	 * @return exception types not to retry
-	 * @deprecated in favor of {@link #noRetryFor()}.
-	 */
-	@Deprecated
-	@AliasFor("noRetryFor")
-	Class<? extends Throwable>[] exclude() default {};
-
-	/**
-	 * Exception types that are not retryable. Defaults to empty (and, if retryFor is also
-	 * empty, all exceptions are retried). If retryFor is empty but noRetryFor is not, all
-	 * other exceptions are retried
-	 * @return exception types not to retry
-	 * @since 2.0
-	 */
-	@AliasFor("exclude")
-	Class<? extends Throwable>[] noRetryFor() default {};
-
-	/**
-	 * Exception types that are not recoverable; these exceptions are thrown to the caller
-	 * without calling any recoverer (immediately if also in {@link #noRetryFor()}).
-	 * Defaults to empty.
-	 * @return exception types not to retry
-	 * @since 2.0
-	 */
-	Class<? extends Throwable>[] notRecoverable() default {};
-
-	/**
-	 * A unique label for statistics reporting. If not provided the caller may choose to
-	 * ignore it, or provide a default.
-	 * @return the label for the statistics
-	 */
-	String label() default "";
-
-	/**
-	 * Flag to say that the retry is stateful: i.e. exceptions are re-thrown, but the
-	 * retry policy is applied with the same policy to subsequent invocations with the
-	 * same arguments. If false then retryable exceptions are not re-thrown.
-	 * @return true if retry is stateful, default false
-	 */
-	boolean stateful() default false;
-
-	/**
-	 * @return the maximum number of attempts (including the first failure), defaults to 3
-	 */
-	int maxAttempts() default 3;
-
-	/**
-	 * @return an expression evaluated to the maximum number of attempts (including the
-	 * first failure), defaults to 3 Overrides {@link #maxAttempts()}. Use {@code #{...}}
-	 * for one-time evaluation during initialization, omit the delimiters for evaluation
-	 * at runtime.
-	 * @since 1.2
-	 */
-	String maxAttemptsExpression() default "";
-
-	/**
-	 * Specify the backoff properties for retrying this operation. The default is a simple
-	 * {@link Backoff} specification with no properties - see its documentation for
-	 * defaults.
-	 * @return a backoff specification
-	 */
-	Backoff backoff() default @Backoff();
-
-	/**
-	 * Specify an expression to be evaluated after the
-	 * {@code SimpleRetryPolicy.canRetry()} returns true - can be used to conditionally
-	 * suppress the retry. Only invoked after an exception is thrown. The root object for
-	 * the evaluation is the last {@code Throwable}. Other beans in the context can be
-	 * referenced. For example: <pre class=code>
-	 *  {@code "message.contains('you can retry this')"}.
-	 * </pre> and <pre class=code>
-	 *  {@code "@someBean.shouldRetry(#root)"}.
-	 * </pre>
-	 * @return the expression.
-	 * @since 1.2
-	 */
-	String exceptionExpression() default "";
-
-	/**
-	 * Bean names of retry listeners to use instead of default ones defined in Spring
-	 * context. If this attribute is set to an empty string {@code ""}, it will
-	 * effectively exclude all retry listeners, including with the default listener beans,
-	 * from being used.
-	 * @return retry listeners bean names
-	 */
-	String[] listeners() default {};
-
-}
+/* * Copyright 2014-2023 the original author or authors. * * Licensed under the Apache License, Version 2.0 (the "License"); * you may not use this file except in compliance with the License. * You may obtain a copy of the License at * *      https://www.apache.org/licenses/LICENSE-2.0 * * Unless required by applicable law or agreed to in writing, software * distributed under the License is distributed on an "AS IS" BASIS, * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. * See the License for the specific language governing permissions and * limitations under the License. */package org.springframework.retry.annotation;import org.springframework.core.annotation.AliasFor;import java.lang.annotation.*;/** * 用于标注可重试方法调用的注解。 * * @author Dave Syer * @author Artem Bilan * @author Gary Russell * @author Maksim Kita * @author Roman Akentev * @since 1.1 * */@Target({ElementType.METHOD, ElementType.TYPE})@Retention(RetentionPolicy.RUNTIME)@Documentedpublic @interface Retryable {    /**     * 在此类中用于恢复的方法名。该方法必须使用 {@link Recover} 注解标记。     *     * @return 恢复方法的名称     */    String recover() default "";    /**     * 应用于可重试方法的重试拦截器 bean 名称。与其他属性互斥。     *     * @return 重试拦截器的 bean 名称     */    String interceptor() default "";    /**     * 可重试的异常类型。默认为空（如果 exclude 也为空，则所有异常都会被重试）。     *     * @return 需要重试的异常类型     * @deprecated 建议使用 {@link #retryFor()} 代替     */    @Deprecated    Class<? extends Throwable>[] value() default {};    /**     * 可重试的异常类型。默认为空（如果 exclude 也为空，则所有异常都会被重试）。     *     * @return 需要重试的异常类型     * @deprecated 建议使用 {@link #retryFor()} 代替。     */    @AliasFor("retryFor")    @Deprecated    Class<? extends Throwable>[] include() default {};    /**     * 可重试的异常类型。默认为空（如果 noRetryFor 也为空，则所有异常都会被重试）。     *     * @return 需要重试的异常类型     * @since 2.0     */    @AliasFor("include")    Class<? extends Throwable>[] retryFor() default {};    /**     * 不可重试的异常类型。默认为空（如果 include 也为空，则所有异常都会被重试）。如果 include 为空但 exclude 不为空，则所有未被排除的异常都会被重试。     *     * @return 不需要重试的异常类型     * @deprecated 建议使用 {@link #noRetryFor()} 代替。     */    @Deprecated    @AliasFor("noRetryFor")    Class<? extends Throwable>[] exclude() default {};    /**     * 不可重试的异常类型。默认为空（如果 retryFor 也为空，则所有异常都会被重试）。     * 如果 retryFor 为空但 noRetryFor 不为空，则所有未被排除的异常都会被重试。     *     * @return 不需要重试的异常类型     * @since 2.0     */    @AliasFor("exclude")    Class<? extends Throwable>[] noRetryFor() default {};    /**     * 不可恢复的异常类型；这些异常会直接抛给调用方，不会调用任何恢复方法（如果异常也在 {@link #noRetryFor()} 中则会立即抛出）。     * 默认为空。     *     * @return 不可恢复的异常类型     * @since 2.0     */    Class<? extends Throwable>[] notRecoverable() default {};    /**     * 用于统计报告的唯一标签。如果未提供，调用方可以选择忽略它，或提供一个默认值。     *     * @return 统计信息的标签     */    String label() default "";    /**     * 用于表示当前的重试操作是“有状态重试”还是“无状态重试”。     * <li>`stateful = true`：表示“有状态重试”。如果方法抛出异常，异常会被重新抛出，但对于参数相同的后续调用，会应用相同的重试策略（即重试次数会被记住）</li>     * <li>`stateful = false`（默认）：表示“无状态重试”。每次调用都被视为独立的重试，异常不会被重新抛出</li>     * <p>     * <pre class=code>     *      &#064;Service     *      public class MyService {     *     *          // 无状态重试（默认）, `statelessRetry()` 每次调用都会重新计数重试次数。     *          &#064;Retryable(maxAttempts  = 3)     *          public void statelessRetry() {     *              System.out.println("statelessRetry called");     *              throw new RuntimeException("fail");     *          }     *     *          // 有状态重试     *          // `statefulRetry("foo")` 如果多次用相同参数 `"foo"` 调用，重试次数会累计，超过最大次数后不会再重试。     *          &#064;Retryable(maxAttempts  = 3, stateful = true)     *          public void statefulRetry(String param) {     *              System.out.println("statefulRetry called with " + param);     *              throw new RuntimeException("fail");     *          }     *      }     * </pre>     */    boolean stateful() default false;    /**     * @return 最大尝试次数（包括首次失败），默认为3。     */    int maxAttempts() default 3;    /**     * @return 一个用于计算最大尝试次数（包括首次失败）的表达式，默认为3。     * 会覆盖 {@link #maxAttempts()}。使用 {@code #{...}} 可在初始化时进行一次性求值，省略定界符则在运行时求值。     * @since 1.2     */    String maxAttemptsExpression() default "";    /**     * 指定重试该操作时的退避属性。默认值是一个简单的 {@link Backoff} 配置，不带任何属性——具体默认值请参见其文档。     *     * @return 退避配置     */    Backoff backoff() default @Backoff();    /**     * 指定一个表达式，在 {@code SimpleRetryPolicy.canRetry()} 返回 true 后进行评估 —> 可用于有条件地抑制重试。     * 仅在抛出异常后调用。表达式的根对象为最后一个 {@code Throwable}。也可以引用上下文中的其他 bean。     * <p>     * 两个示例如下：     * <pre class=code>     *  // 如果异常消息包含 "you can retry this" 则进行重试     *  {@code "message.contains('you can retry this')"}。     * </pre>     * <p>     * 以及     *     * <pre class=code>     *  // 调用名为 someBean 的 bean 的 shouldRetry 方法，并将根异常作为参数传递     *  {@code "@someBean.shouldRetry(#root)"}。     * </pre>     *     * @return 表达式     * @since 1.2.3     */    String exceptionExpression() default "";    /**     * 要使用的重试监听器的 Bean 名称，替代 Spring 上下文中定义的默认监听器。     * 如果此属性设置为空字符串 {@code ""}，则会有效地排除所有重试监听器（包括默认监听器 Bean）。     *     * @return 重试监听器的 Bean 名称     */    String[] listeners() default {};}
