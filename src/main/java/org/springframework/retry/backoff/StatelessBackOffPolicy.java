@@ -19,8 +19,7 @@ package org.springframework.retry.backoff;
 import org.springframework.retry.RetryContext;
 
 /**
- * Simple base class for {@link BackOffPolicy} implementations that maintain no state
- * across invocations.
+ * {@link BackOffPolicy} 实现的简单基类，它是无状态的, 在多次调用之间不维护任何状态。
  *
  * @author Rob Harrop
  * @author Dave Syer

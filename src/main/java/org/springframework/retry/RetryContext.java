@@ -92,7 +92,7 @@ public interface RetryContext extends AttributeAccessor {
     int getRetryCount();
 
     /**
-     * 引发当前重试的异常对象的访问器。
+     * 获取引发当前重试操作的异常对象
      *
      * @return 最后一个引发重试的异常，也可能是 null。
      * 如果这是第一次尝试且成功完成，或者如果包含的策略决定不提供它（例如，出于内存使用考虑），则该值将为 null。

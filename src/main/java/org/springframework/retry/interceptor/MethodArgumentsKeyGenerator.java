@@ -19,7 +19,6 @@ package org.springframework.retry.interceptor;
  * 允许通过唯一键标识和标记方法参数的接口。
  *
  * @author Dave Syer
- *
  */
 public interface MethodArgumentsKeyGenerator {
 

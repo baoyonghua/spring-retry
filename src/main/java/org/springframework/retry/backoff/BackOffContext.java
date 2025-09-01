@@ -16,6 +16,8 @@
 
 package org.springframework.retry.backoff;
 
+import org.springframework.retry.RetryContext;
+
 import java.io.Serializable;
 
 /**

@@ -26,16 +26,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
- * Implementation of {@link BackOffPolicy} that increases the back off period for each
- * retry attempt in a given set up to a limit.
- *
- * This implementation is thread-safe and suitable for concurrent access. Modifications to
- * the configuration do not affect any retry sets that are already in progress.
- *
- * The {@link #setInitialInterval(long)} property controls the initial delay value for the
- * first retry and the {@link #setMultiplier(double)} property controls by how much the
- * delay is increased for each subsequent attempt. The delay interval is capped at
- * {@link #setMaxInterval(long)}.
+ * {@link BackOffPolicy} 的实现，每次重试时都会增加退避时间，直到达到上限。
+ * <p>
+ * 该实现是线程安全的，适用于并发访问。对配置的修改不会影响已经在进行中的重试集。
+ * <p>
+ * {@link #setInitialInterval(long)} 属性控制第一次重试的初始延迟值，{@link #setMultiplier(double)} 属性控制每次重试延迟递增的倍数。
+ * 延迟间隔会被 {@link #setMaxInterval(long)} 限制在最大值。
  *
  * @author Rob Harrop
  * @author Dave Syer
@@ -51,51 +47,54 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	/**
-	 * The default 'initialInterval' value - 100 millisecs. Coupled with the default
-	 * 'multiplier' value this gives a useful initial spread of pauses for 1-5 retries.
+     * 默认的 'initialInterval'（初始间隔）值为 100 毫秒。
+     * 结合默认的 'multiplier'（乘数）值，可以为 1-5 次重试提供合理的初始延迟分布。
 	 */
 	public static final long DEFAULT_INITIAL_INTERVAL = 100L;
 
 	/**
-	 * The default maximum backoff time (30 seconds).
+	 * 默认的最大重试延迟时间（30秒）。
 	 */
 	public static final long DEFAULT_MAX_INTERVAL = 30000L;
 
 	/**
-	 * The default 'multiplier' value - value 2 (100% increase per backoff).
+	 * 默认的“乘数”值 - 2（每次重试增加100%的退避间隔）
 	 */
 	public static final double DEFAULT_MULTIPLIER = 2;
 
 	/**
-	 * The initial backoff interval.
+	 * 初始退避间隔
 	 */
 	private long initialInterval = DEFAULT_INITIAL_INTERVAL;
 
 	/**
-	 * The maximum value of the backoff period in milliseconds.
+	 * 以毫秒为单位的最大的间隔时间
 	 */
 	private long maxInterval = DEFAULT_MAX_INTERVAL;
 
 	/**
-	 * The value to add to the backoff period for each retry attempt.
+	 * 每个重试中要增加的延迟时间值。
 	 */
 	private double multiplier = DEFAULT_MULTIPLIER;
 
 	/**
-	 * The initial backoff interval.
+	 * 初始退避间隔Supplier
 	 */
 	private Supplier<Long> initialIntervalSupplier;
 
 	/**
-	 * The maximum value of the backoff period in milliseconds.
+	 * 以毫秒为单位的最大的间隔时间Supplier
 	 */
 	private Supplier<Long> maxIntervalSupplier;
 
 	/**
-	 * The value to add to the backoff period for each retry attempt.
+	 * 每个重试中要增加的延迟时间值Supplier
 	 */
 	private Supplier<Double> multiplierSupplier;
 
+    /**
+     * Sleeper
+     */
 	private Sleeper sleeper = new ThreadWaitSleeper();
 
 	/**
@@ -106,6 +105,11 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 		this.sleeper = sleeper;
 	}
 
+    /**
+     * 创建一个新的实例，并使用提供的 {@link Sleeper}。
+     * @param sleeper Target to be invoked any time the backoff policy sleeps
+     * @return
+     */
 	@Override
 	public ExponentialBackOffPolicy withSleeper(Sleeper sleeper) {
 		ExponentialBackOffPolicy res = newInstance();
@@ -126,8 +130,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 	}
 
 	/**
-	 * Set the initial sleep interval value. Default is {@code 100} millisecond. Cannot be
-	 * set to a value less than one.
+	 * 设置初始睡眠间隔值。默认值为 {@code 100} 毫秒。不能设置为小于 1 的值。
 	 * @param initialInterval the initial interval
 	 */
 	public void setInitialInterval(long initialInterval) {
@@ -138,22 +141,19 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 	}
 
 	/**
-	 * Set the multiplier value. Default is '<code>2.0</code>'. Hint: do not use values
-	 * much in excess of 1.0 (or the backoff will get very long very fast).
+	 * 设置乘数值。默认值为 '<code>2.0</code>’。提示：请勿使用远大于 1.0 的值（否则回退过程会非常漫长）。
 	 * @param multiplier the multiplier
 	 */
 	public void setMultiplier(double multiplier) {
 		if (multiplier <= 1.0) {
 			logger.warn("Multiplier must be > 1.0 for effective exponential backoff, but was " + multiplier);
 		}
-		this.multiplier = multiplier > 1.0 ? multiplier : 1.0;
+		this.multiplier = Math.max(multiplier, 1.0);
 	}
 
 	/**
-	 * Setter for maximum back off period. Default is 30000 (30 seconds). the value will
-	 * be reset to 1 if this method is called with a value less than 1. Set this to avoid
-	 * infinite waits if backing off a large number of times (or if the multiplier is set
-	 * too high).
+	 * 设置最大回退周期。默认值为30000（30秒）。如果使用小于1的值调用此方法，其会将值重置为1。
+     * 通过设置此值可避免因多次回退（或乘数设置过高）而导致无限等待。
 	 * @param maxInterval in milliseconds.
 	 */
 	public void setMaxInterval(long maxInterval) {
@@ -164,8 +164,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 	}
 
 	/**
-	 * Set the initial sleep interval value. Default supplier supplies {@code 100}
-	 * millisecond.
+	 * 设置初始睡眠间隔值Supplier。默认Supplier提供为 {@code 100} 毫秒。
 	 * @param initialIntervalSupplier the initial interval
 	 * @since 2.0
 	 */
@@ -235,16 +234,22 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 	}
 
 	/**
-	 * Returns a new instance of {@link BackOffContext} with the configured properties.
+	 * 返回具有配置属性的特定的 {@link BackOffContext} 实现
 	 */
 	@Override
 	public BackOffContext start(RetryContext context) {
-		return new ExponentialBackOffContext(this.initialInterval, this.multiplier, this.maxInterval,
-				this.initialIntervalSupplier, this.multiplierSupplier, this.maxIntervalSupplier);
+		return new ExponentialBackOffContext(
+                this.initialInterval,
+                this.multiplier,
+                this.maxInterval,
+				this.initialIntervalSupplier,
+                this.multiplierSupplier,
+                this.maxIntervalSupplier
+        );
 	}
 
 	/**
-	 * Pause for the current backoff interval.
+	 * 暂停以等待当前的超时间隔。
 	 */
 	@Override
 	public void backOff(BackOffContext backOffContext) throws BackOffInterruptedException {
@@ -262,19 +267,40 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 		}
 	}
 
+    /**
+     * 指数退避上下文
+     */
 	static class ExponentialBackOffContext implements BackOffContext {
 
+        /**
+         * 乘数, 每次重试时延迟增加的倍数
+         */
 		private final double multiplier;
 
+        /**
+         * 当前间隔
+         */
 		private long interval;
 
+        /**
+         * 最大间隔
+         */
 		private final long maxInterval;
 
+        /**
+         * 初始间隔供应商（仅在第一次调用 getInterval() 时使用，之后设为 null ）
+         */
 		private Supplier<Long> initialIntervalSupplier;
 
-		private Supplier<Double> multiplierSupplier;
+        /**
+         * 乘数供应商（如果不为 null，则每次调用 getMultiplier() 时使用）
+         */
+		private final Supplier<Double> multiplierSupplier;
 
-		private Supplier<Long> maxIntervalSupplier;
+        /**
+         * 最大间隔供应商（如果不为 null，则每次调用 getMaxInterval() 时使用）
+         */
+		private final Supplier<Long> maxIntervalSupplier;
 
 		public ExponentialBackOffContext(long interval, double multiplier, long maxInterval,
 				Supplier<Long> intervalSupplier, Supplier<Double> multiplierSupplier,
@@ -287,6 +313,10 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 			this.maxIntervalSupplier = maxIntervalSupplier;
 		}
 
+        /**
+         * 获取当前的睡眠时间并递增间隔
+         * @return
+         */
 		public synchronized long getSleepAndIncrement() {
 			long sleep = getInterval();
 			long max = getMaxInterval();
@@ -299,6 +329,10 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 			return sleep;
 		}
 
+        /**
+         * 获取下一次的间隔
+         * @return
+         */
 		protected long getNextInterval() {
 			return (long) (this.interval * getMultiplier());
 		}
@@ -307,6 +341,10 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 			return this.multiplierSupplier != null ? this.multiplierSupplier.get() : this.multiplier;
 		}
 
+        /**
+         * 获取当前间隔，即: 当前的睡眠时间
+         * @return
+         */
 		public long getInterval() {
 			if (this.initialIntervalSupplier != null) {
 				this.interval = this.initialIntervalSupplier.get();
@@ -315,10 +353,13 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 			return this.interval;
 		}
 
+        /**
+         * 获取最大间隔, 即：最大的睡眠时间
+         * @return
+         */
 		public long getMaxInterval() {
 			return this.maxIntervalSupplier != null ? this.maxIntervalSupplier.get() : this.maxInterval;
 		}
-
 	}
 
 	@Override

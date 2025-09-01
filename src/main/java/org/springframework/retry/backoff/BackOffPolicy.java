@@ -17,45 +17,36 @@
 package org.springframework.retry.backoff;
 
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.support.RetryTemplate;
 
 /**
- * Strategy interface to control back off between attempts in a single
- * {@link org.springframework.retry.support.RetryTemplate retry operation}.
- *
- * Implementations are expected to be thread-safe and should be designed for concurrent
- * access. Configuration for each implementation is also expected to be thread-safe but
- * need not be suitable for high load concurrent access.
- *
- * For each block of retry operations the {@link #start} method is called and
- * implementations can return an implementation-specific
- *
- * {@link BackOffContext} that can be used to track state through subsequent back off
- * invocations. Each back off process is handled via a call to {@link #backOff}.
- *
- * The {@link org.springframework.retry.support.RetryTemplate} will pass in the
- * corresponding {@link BackOffContext} object created by the call to {@link #start}.
+ * 用于控制单次 {@link RetryTemplate 重试操作} 中各次重试之间退避时间的策略接口。
+ * <p>
+ * 实现类应当是线程安全的，并且应为并发访问而设计。每个实现的配置也应当是线程安全的，但不必适用于高负载并发访问。
+ * <p>
+ * 对于每一组重试操作，都会调用 {@link #start} 方法来获取{@link BackOffContext}，
+ * 且实现类可以返回特定实现的{@link BackOffContext}，用于在后续退避调用中跟踪状态。
+ * 每次退避过程都会通过调用 {@link #backOff} 方法来实现退避操作
  *
  * @author Rob Harrop
  * @author Dave Syer
  */
 public interface BackOffPolicy {
 
-	/**
-	 * Start a new block of back off operations. Implementations can choose to pause when
-	 * this method is called, but normally it returns immediately.
-	 * @param context the {@link RetryContext} context, which might contain information
-	 * that we can use to decide how to proceed.
-	 * @return the implementation-specific {@link BackOffContext} or '<code>null</code>'.
-	 */
-	BackOffContext start(RetryContext context);
+    /**
+     * 开始一组新的退避操作。实现类可以选择在调用此方法时进行暂停，但通常会立即返回。
+     *
+     * @param context {@link RetryContext} 上下文，可能包含我们用来决定如何继续的信息。
+     * @return 特定的 {@link BackOffContext}实现 或 `<code>null</code>`。
+     */
+    BackOffContext start(RetryContext context);
 
-	/**
-	 * Back off/pause in an implementation-specific fashion. The passed in
-	 * {@link BackOffContext} corresponds to the one created by the call to {@link #start}
-	 * for a given retry operation set.
-	 * @param backOffContext the {@link BackOffContext}
-	 * @throws BackOffInterruptedException if the attempt at back off is interrupted.
-	 */
-	void backOff(BackOffContext backOffContext) throws BackOffInterruptedException;
+    /**
+     * 以特定的方式进行退避/暂停。传入的 {@link BackOffContext} 对应于为某组重试操作通过调用 {@link #start} 创建的{@link BackOffContext}实例。
+     *
+     * @param backOffContext 由 {@link #start} 创建的 {@link BackOffContext}
+     * @throws BackOffInterruptedException 如果退避操作被中断则抛出该异常。
+     */
+    void backOff(BackOffContext backOffContext) throws BackOffInterruptedException;
 
 }

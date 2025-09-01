@@ -18,7 +18,6 @@ package org.springframework.retry.interceptor;
 
 /**
  * @author Dave Syer
- *
  */
 public class FixedKeyGenerator implements MethodArgumentsKeyGenerator {
 

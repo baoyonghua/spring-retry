@@ -17,19 +17,18 @@
 package org.springframework.retry.backoff;
 
 /**
- * A interface which can be mixed in by {@link BackOffPolicy}s indicating that they sleep
- * when backing off.
+ * 一个混入了{@link BackOffPolicy}的接口，用于表示具体的实现在退避时会进行休眠。
  *
  * @param <T> the type of the policy itself
  */
 public interface SleepingBackOffPolicy<T extends SleepingBackOffPolicy<T>> extends BackOffPolicy {
 
-	/**
-	 * Clone the policy and return a new policy which uses the passed sleeper.
-	 * @param sleeper Target to be invoked any time the backoff policy sleeps
-	 * @return a clone of this policy which will have all of its backoff sleeps routed
-	 * into the passed sleeper
-	 */
-	T withSleeper(Sleeper sleeper);
+    /**
+     * 克隆该{@link BackOffPolicy}并返回一个使用传入的sleeper的新{@link BackOffPolicy}。
+     *
+     * @param sleeper 每当退避策略休眠时将被调用的目标
+     * @return 该策略的一个克隆，后续所有的休眠操作都将通过传入的sleeper处理
+     */
+    T withSleeper(Sleeper sleeper);
 
 }

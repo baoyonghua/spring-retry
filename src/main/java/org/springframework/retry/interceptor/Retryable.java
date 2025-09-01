@@ -17,9 +17,8 @@
 package org.springframework.retry.interceptor;
 
 /**
- * Marker interface for proxies that are providing retryable behaviour. Can be added by
- * proxy creators that use the {@link RetryOperationsInterceptor} and
- * {@link StatefulRetryOperationsInterceptor}.
+ * 标记接口，用于为代理提供可重试行为。可由使用 {@link RetryOperationsInterceptor} 和
+ * {@link StatefulRetryOperationsInterceptor} 的代理创建者添加。
  *
  * @author Dave Syer
  * @since 1.1

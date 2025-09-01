@@ -19,32 +19,30 @@ package org.springframework.retry.backoff;
 import java.util.function.Supplier;
 
 /**
- * Fluent API for creating a {@link BackOffPolicy} based on given attributes. The delay
- * values are expressed in milliseconds. If any provided value is less than one, the
- * resulting policy will set it to one. The default policy is a {@link FixedBackOffPolicy}
- * with a delay of 1000ms.
+ * 流畅API用于根据给定属性创建 {@link BackOffPolicy}。
+ * 延迟值以毫秒为单位表示。如果提供的任何值小于1，则产生的策略会将其设置为1。
+ * 默认策略是一个 {@link FixedBackOffPolicy}，延迟为1000ms。
  *
  * <p>
- * Examples: <pre>
+ * 示例: <pre>
  *
  * // Default {@link FixedBackOffPolicy} with 1000ms delay
- * BackOffPolicyBuilder
- * 		.newDefaultPolicy();
+ * BackOffPolicyBuilder.newDefaultPolicy();
  *
- * // {@link FixedBackOffPolicy}
+ * // {@link FixedBackOffPolicy} with 2000ms delay
  * BackOffPolicyBuilder
  * 		.newBuilder()
  * 		.delay(2000)
  * 		.build();
  *
- * // {@link UniformRandomBackOffPolicy}
+ * // {@link UniformRandomBackOffPolicy} with 500ms min and 1000ms max delay
  * BackOffPolicyBuilder
  * 		.newBuilder()
  * 		.delay(500)
  * 		.maxDelay(1000)
  * 		.build();
  *
- * // {@link ExponentialBackOffPolicy}
+ * // {@link ExponentialBackOffPolicy} with 1000ms initial delay, 5000ms max delay and 2x multiplier
  * BackOffPolicyBuilder
  * 		.newBuilder()
  * 		.delay(1000)
@@ -52,7 +50,8 @@ import java.util.function.Supplier;
  * 		.multiplier(2)
  * 		.build();
  *
- * // {@link ExponentialRandomBackOffPolicy} with provided {@link Sleeper}
+ * // {@link ExponentialRandomBackOffPolicy} with provided {@link Sleeper},
+ * // 3000ms initial delay, 5000ms max delay and 1.5x multiplier, and randomized
  * BackOffPolicyBuilder
  * 		.newBuilder()
  * 		.delay(3000)
@@ -63,9 +62,7 @@ import java.util.function.Supplier;
  * 		.build();
  * </pre>
  * <p>
- * Not thread safe. Building should be performed in a single thread. The resulting
- * {@link BackOffPolicy} however is expected to be thread-safe and designed for moderate
- * load concurrent access.
+ * Builder是非线程安全的。因此构建操作应在一个单独的线程中执行。然而，生成的 {@link BackOffPolicy} 预期是线程安全的，并针对中等负载并发访问进行了设计。
  *
  * @author Tomaz Fernandes
  * @author Aftab Shaikh

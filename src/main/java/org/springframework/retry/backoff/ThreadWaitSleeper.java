@@ -30,5 +30,4 @@ public class ThreadWaitSleeper implements Sleeper {
 	public void sleep(long backOffPeriod) throws InterruptedException {
 		Thread.sleep(backOffPeriod);
 	}
-
 }

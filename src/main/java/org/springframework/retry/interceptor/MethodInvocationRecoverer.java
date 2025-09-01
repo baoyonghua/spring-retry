@@ -17,21 +17,21 @@
 package org.springframework.retry.interceptor;
 
 /**
- * Strategy interface for recovery action when processing of an item fails.
+ * 当处理某个重试操作失败时用于恢复操作的策略接口。
  *
- * @author Dave Syer
  * @param <T> the return type
+ * @author Dave Syer
  */
 public interface MethodInvocationRecoverer<T> {
 
-	/**
-	 * Recover gracefully from an error. Clients can call this if processing of the item
-	 * throws an unexpected exception. Caller can use the return value to decide whether
-	 * to try more corrective action or perhaps throw an exception.
-	 * @param args the arguments for the method invocation that failed.
-	 * @param cause the cause of the failure that led to this recovery.
-	 * @return the value to be returned to the caller
-	 */
-	T recover(Object[] args, Throwable cause);
+    /**
+     * 优雅地从错误中恢复。如果处理某个条目时抛出了意外异常，客户端可以调用此方法。
+     * 调用者可以根据返回值决定是否采取更多补救措施，或抛出异常。
+     *
+     * @param args  失败的方法调用参数。
+     * @param cause 导致恢复的失败原因。
+     * @return 返回给调用者的值
+     */
+    T recover(Object[] args, Throwable cause);
 
 }
