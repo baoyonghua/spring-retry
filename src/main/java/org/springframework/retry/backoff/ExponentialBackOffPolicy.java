@@ -278,12 +278,12 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 		private final double multiplier;
 
         /**
-         * 当前间隔
+         * 当前间隔 -> 当前退避时间
          */
 		private long interval;
 
         /**
-         * 最大间隔
+         * 最大间隔 -> 最大的退避时间
          */
 		private final long maxInterval;
 

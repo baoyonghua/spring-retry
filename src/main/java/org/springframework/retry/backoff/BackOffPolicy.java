@@ -34,7 +34,8 @@ import org.springframework.retry.support.RetryTemplate;
 public interface BackOffPolicy {
 
     /**
-     * 开始一组新的退避操作。实现类可以选择在调用此方法时进行暂停，但通常会立即返回。
+     * 开启一个新的退避操作。
+     * 实现类可以选择在调用此方法时进行暂停，但通常会立即返回。
      *
      * @param context {@link RetryContext} 上下文，可能包含我们用来决定如何继续的信息。
      * @return 特定的 {@link BackOffContext}实现 或 `<code>null</code>`。

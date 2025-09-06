@@ -16,13 +16,13 @@
 
 package org.springframework.retry.support;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.lang.Nullable;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryOperations;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Global variable support for retry clients. Normally it is not necessary for clients to
@@ -39,87 +39,94 @@ import org.springframework.retry.RetryOperations;
  */
 public final class RetrySynchronizationManager {
 
-	private RetrySynchronizationManager() {
-	}
+    private RetrySynchronizationManager() {
+    }
 
-	private static final ThreadLocal<RetryContext> context = new ThreadLocal<>();
+    private static final ThreadLocal<RetryContext> context = new ThreadLocal<>();
 
-	private static final Map<Thread, RetryContext> contexts = new ConcurrentHashMap<>();
+    private static final Map<Thread, RetryContext> contexts = new ConcurrentHashMap<>();
 
-	private static boolean useThreadLocal = true;
+    /**
+     * 是否将重试上下文存储在 ThreadLocal 中，默认为 true。
+     * 设置为 false 时，重试上下文将存储在一个 Map 中，该 Map 以当前线程为键。
+     * 当使用虚拟线程时，需要将此值设置为 false。
+     */
+    private static boolean useThreadLocal = true;
 
-	/**
-	 * Set to false to store the context in a map (keyed by the current thread) instead of
-	 * in a {@link ThreadLocal}. Recommended when using virtual threads.
-	 * @param use true to use a {@link ThreadLocal} (default true).
-	 * @since 2.0.3
-	 */
-	public static void setUseThreadLocal(boolean use) {
-		useThreadLocal = use;
-	}
+    /**
+     * Set to false to store the context in a map (keyed by the current thread) instead of
+     * in a {@link ThreadLocal}. Recommended when using virtual threads.
+     *
+     * @param use true to use a {@link ThreadLocal} (default true).
+     * @since 2.0.3
+     */
+    public static void setUseThreadLocal(boolean use) {
+        useThreadLocal = use;
+    }
 
-	/**
-	 * Return true if contexts are held in a ThreadLocal (default) rather than a Map.
-	 * @return the useThreadLocal
-	 * @since 2.0.3
-	 */
-	public static boolean isUseThreadLocal() {
-		return useThreadLocal;
-	}
+    /**
+     * Return true if contexts are held in a ThreadLocal (default) rather than a Map.
+     *
+     * @return the useThreadLocal
+     * @since 2.0.3
+     */
+    public static boolean isUseThreadLocal() {
+        return useThreadLocal;
+    }
 
-	/**
-	 * Public accessor for the locally enclosing {@link RetryContext}.
-	 * @return the current retry context, or null if there isn't one
-	 */
-	@Nullable public static RetryContext getContext() {
-		if (useThreadLocal) {
-			return context.get();
-		}
-		else {
-			return contexts.get(Thread.currentThread());
-		}
-	}
+    /**
+     * Public accessor for the locally enclosing {@link RetryContext}.
+     *
+     * @return the current retry context, or null if there isn't one
+     */
+    @Nullable
+    public static RetryContext getContext() {
+        if (useThreadLocal) {
+            return context.get();
+        } else {
+            return contexts.get(Thread.currentThread());
+        }
+    }
 
-	/**
-	 * Method for registering a context - should only be used by {@link RetryOperations}
-	 * implementations to ensure that {@link #getContext()} always returns the correct
-	 * value.
-	 * @param context the new context to register
-	 * @return the old context if there was one
-	 */
-	@Nullable public static RetryContext register(RetryContext context) {
-		if (useThreadLocal) {
-			RetryContext oldContext = getContext();
-			RetrySynchronizationManager.context.set(context);
-			return oldContext;
-		}
-		else {
-			RetryContext oldContext = contexts.get(Thread.currentThread());
-			contexts.put(Thread.currentThread(), context);
-			return oldContext;
-		}
-	}
+    /**
+     * 注册重试上下文的方法，应该仅由 {@link RetryOperations} 实现类使用，以确保 {@link #getContext()} 总是返回正确的值。
+     *
+     * @param context 要注册的新重试上下文
+     * @return 如果存在，则返回旧的上下文
+     */
+    @Nullable
+    public static RetryContext register(RetryContext context) {
+        RetryContext oldContext;
+        if (useThreadLocal) {
+            oldContext = getContext();
+            RetrySynchronizationManager.context.set(context);
+        } else {
+            oldContext = contexts.get(Thread.currentThread());
+            contexts.put(Thread.currentThread(), context);
+        }
+        return oldContext;
+    }
 
-	/**
-	 * Clear the current context at the end of a batch - should only be used by
-	 * {@link RetryOperations} implementations.
-	 * @return the old value if there was one.
-	 */
-	@Nullable public static RetryContext clear() {
-		RetryContext value = getContext();
-		RetryContext parent = value == null ? null : value.getParent();
-		if (useThreadLocal) {
-			RetrySynchronizationManager.context.set(parent);
-		}
-		else {
-			if (parent != null) {
-				contexts.put(Thread.currentThread(), parent);
-			}
-			else {
-				contexts.remove(Thread.currentThread());
-			}
-		}
-		return value;
-	}
+    /**
+     * Clear the current context at the end of a batch - should only be used by
+     * {@link RetryOperations} implementations.
+     *
+     * @return the old value if there was one.
+     */
+    @Nullable
+    public static RetryContext clear() {
+        RetryContext value = getContext();
+        RetryContext parent = value == null ? null : value.getParent();
+        if (useThreadLocal) {
+            RetrySynchronizationManager.context.set(parent);
+        } else {
+            if (parent != null) {
+                contexts.put(Thread.currentThread(), parent);
+            } else {
+                contexts.remove(Thread.currentThread());
+            }
+        }
+        return value;
+    }
 
 }

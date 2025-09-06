@@ -19,79 +19,71 @@ package org.springframework.retry;
 import org.springframework.retry.support.DefaultRetryState;
 
 /**
- * Defines the basic set of operations implemented by {@link RetryOperations} to execute
- * operations with configurable retry behaviour.
+ * 定义了由 {@link RetryOperations} 实现的基本操作集，用于执行具有可配置重试行为的操作。
  *
  * @author Rob Harrop
  * @author Dave Syer
  */
 public interface RetryOperations {
 
-	/**
-	 * Execute the supplied {@link RetryCallback} with the configured retry semantics. See
-	 * implementations for configuration details.
-	 * @param <T> the return value
-	 * @param retryCallback the {@link RetryCallback}
-	 * @param <E> the exception to throw
-	 * @return the value returned by the {@link RetryCallback} upon successful invocation.
-	 * @throws E any {@link Exception} raised by the {@link RetryCallback} upon
-	 * unsuccessful retry.
-	 * @throws E the exception thrown
-	 */
-	<T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback) throws E;
+    /**
+     * 使用已配置的重试语义执行用户所提供的 {@link RetryCallback}。具体配置细节请参见实现类。
+     *
+     * @param <T>           返回值类型
+     * @param retryCallback {@link RetryCallback} 实例
+     * @param <E>           操作所抛出的异常类型
+     * @return 成功调用 {@link RetryCallback} 时返回的值。
+     * @throws E 在重试失败时由 {@link RetryCallback} 抛出的任何 {@link Exception}。
+     */
+    <T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback) throws E;
 
-	/**
-	 * Execute the supplied {@link RetryCallback} with a fallback on exhausted retry to
-	 * the {@link RecoveryCallback}. See implementations for configuration details.
-	 * @param recoveryCallback the {@link RecoveryCallback}
-	 * @param retryCallback the {@link RetryCallback} {@link RecoveryCallback} upon
-	 * @param <T> the type to return
-	 * @param <E> the type of the exception
-	 * @return the value returned by the {@link RetryCallback} upon successful invocation,
-	 * and that returned by the {@link RecoveryCallback} otherwise.
-	 * @throws E any {@link Exception} raised by the unsuccessful retry.
-	 */
-	<T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback, RecoveryCallback<T> recoveryCallback)
-			throws E;
+    /**
+     * 执行用户所提供的 {@link RetryCallback}，当重试耗尽时会调用 {@link RecoveryCallback}来进行恢复。具体配置细节请参见实现类。
+     *
+     * @param recoveryCallback {@link RecoveryCallback} 实例
+     * @param retryCallback    {@link RetryCallback} 实例
+     * @param <T>              返回值类型
+     * @param <E>              异常类型
+     * @return 成功调用 {@link RetryCallback} 时返回的值，重试失败时返回 {@link RecoveryCallback} 的值。
+     * @throws E 在重试失败时由 {@link RetryCallback} 抛出的任何 {@link Exception}。
+     */
+    <T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback, RecoveryCallback<T> recoveryCallback)
+            throws E;
 
-	/**
-	 * A simple stateful retry. Execute the supplied {@link RetryCallback} with a target
-	 * object for the attempt identified by the {@link DefaultRetryState}. Exceptions
-	 * thrown by the callback are always propagated immediately so the state is required
-	 * to be able to identify the previous attempt, if there is one - hence the state is
-	 * required. Normal patterns would see this method being used inside a transaction,
-	 * where the callback might invalidate the transaction if it fails.
-	 *
-	 * See implementations for configuration details.
-	 * @param retryCallback the {@link RetryCallback}
-	 * @param retryState the {@link RetryState}
-	 * @param <T> the type of the return value
-	 * @param <E> the type of the exception to return
-	 * @return the value returned by the {@link RetryCallback} upon successful invocation,
-	 * and that returned by the {@link RecoveryCallback} otherwise.
-	 * @throws E any {@link Exception} raised by the {@link RecoveryCallback}.
-	 * @throws ExhaustedRetryException if the last attempt for this state has already been
-	 * reached
-	 */
-	<T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback, RetryState retryState)
-			throws E, ExhaustedRetryException;
+    /**
+     * 一个简单的有状态重试。执行提供的 {@link RetryCallback}，并通过 {@link DefaultRetryState} 标识本次重试的目标对象。
+     * <p>
+     * 回调抛出的异常总是会被立即传播，因此我们需要RetryState来识别之前的重试操作（如果有）—> 因此RetryState是必需的。
+     * 通常的用法是在事务中使用此方法，如果回调失败，那么会立即传播异常，从而可能会使事务失效。
+     * <p>
+     * 配置细节请参见具体实现。
+     *
+     * @param retryCallback {@link RetryCallback} 实例
+     * @param retryState    {@link RetryState} 实例
+     * @param <T>           返回值类型
+     * @param <E>           抛出异常的类型
+     * @return 成功调用 {@link RetryCallback} 时返回的值
+     * @throws E                       由 {@link RetryCallback} 抛出的任何 {@link Exception}。
+     * @throws ExhaustedRetryException 如果该状态的最后一次尝试已被用尽
+     */
+    <T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback, RetryState retryState)
+            throws E, ExhaustedRetryException;
 
-	/**
-	 * A stateful retry with a recovery path. Execute the supplied {@link RetryCallback}
-	 * with a fallback on exhausted retry to the {@link RecoveryCallback} and a target
-	 * object for the retry attempt identified by the {@link DefaultRetryState}.
-	 * @param recoveryCallback the {@link RecoveryCallback}
-	 * @param retryState the {@link RetryState}
-	 * @param retryCallback the {@link RetryCallback}
-	 * @param <T> the return value type
-	 * @param <E> the exception type
-	 * @see #execute(RetryCallback, RetryState)
-	 * @return the value returned by the {@link RetryCallback} upon successful invocation,
-	 * and that returned by the {@link RecoveryCallback} otherwise.
-	 * @throws E any {@link Exception} raised by the {@link RecoveryCallback} upon
-	 * unsuccessful retry.
-	 */
-	<T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback, RecoveryCallback<T> recoveryCallback,
-			RetryState retryState) throws E;
+
+    /**
+     * 一个带有恢复路径的有状态重试。执行提供的 {@link RetryCallback}，当重试耗尽时回退到 {@link RecoveryCallback}，
+     * 并通过 {@link DefaultRetryState} 标识本次重试的目标对象。
+     *
+     * @param recoveryCallback {@link RecoveryCallback} 实例
+     * @param retryState       {@link RetryState} 实例
+     * @param retryCallback    {@link RetryCallback} 实例
+     * @param <T>              返回值类型
+     * @param <E>              异常类型
+     * @return 成功调用 {@link RetryCallback} 时返回的值，重试失败时返回 {@link RecoveryCallback} 的值。
+     * @throws E 在重试失败时由 {@link RetryCallback} 抛出的任何 {@link Exception}。
+     * @see #execute(RetryCallback, RetryState)
+     */
+    <T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback, RecoveryCallback<T> recoveryCallback,
+                                       RetryState retryState) throws E;
 
 }

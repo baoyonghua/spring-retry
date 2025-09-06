@@ -22,97 +22,92 @@ import org.springframework.retry.RetryOperations;
 import org.springframework.retry.RetryState;
 
 /**
- * @author Dave Syer
+ * 默认的 {@link RetryState} 实现
  *
+ * @author Dave Syer
  */
 public class DefaultRetryState implements RetryState {
 
-	final private Object key;
+    /**
+     * 用于标识此RetryState的键
+     */
+    final private Object key;
 
-	final private boolean forceRefresh;
+    /**
+     * 如果已知该重试是一个全新的状态（之前不可能失败过），则为真。
+     */
+    final private boolean forceRefresh;
 
-	final private Classifier<? super Throwable, Boolean> rollbackClassifier;
+    /**
+     * 回滚分类器。key为Throwable, value用于标识是否需要进行回滚, 如果提供的异常应导致回滚，则value为true。
+     */
+    final private Classifier<? super Throwable, Boolean> rollbackClassifier;
 
-	/**
-	 * Create a {@link DefaultRetryState} representing the state for a new retry attempt.
-	 *
-	 * @see RetryOperations#execute(RetryCallback, RetryState)
-	 * @see RetryOperations#execute(RetryCallback, RecoveryCallback, RetryState)
-	 * @param key the key for the state to allow this retry attempt to be recognised
-	 * @param forceRefresh true if the attempt is known to be a brand new state (could not
-	 * have previously failed)
-	 * @param rollbackClassifier the rollback classifier to set. The rollback classifier
-	 * answers true if the exception provided should cause a rollback.
-	 */
-	public DefaultRetryState(Object key, boolean forceRefresh,
-			Classifier<? super Throwable, Boolean> rollbackClassifier) {
-		this.key = key;
-		this.forceRefresh = forceRefresh;
-		this.rollbackClassifier = rollbackClassifier;
-	}
+    /**
+     * 创建一个 {@link DefaultRetryState}，代表新的重试状态
+     *
+     * @param key                用于标识此RetryState的键
+     * @param forceRefresh       如果已知该重试是一个全新的状态（之前不可能失败过），则为真。
+     * @param rollbackClassifier 回滚分类器。key为Throwable, value用于标识是否需要进行回滚, 如果提供的异常应导致回滚，则value为true。
+     * @see RetryOperations#execute(RetryCallback, RetryState)
+     * @see RetryOperations#execute(RetryCallback, RecoveryCallback, RetryState)
+     */
+    public DefaultRetryState(Object key, boolean forceRefresh,
+                             Classifier<? super Throwable, Boolean> rollbackClassifier) {
+        this.key = key;
+        this.forceRefresh = forceRefresh;
+        this.rollbackClassifier = rollbackClassifier;
+    }
 
-	/**
-	 * Defaults the force refresh flag to false.
-	 * @see DefaultRetryState#DefaultRetryState(Object, boolean, Classifier)
-	 * @param key the key
-	 * @param rollbackClassifier the rollback {@link Classifier}
-	 */
-	public DefaultRetryState(Object key, Classifier<? super Throwable, Boolean> rollbackClassifier) {
-		this(key, false, rollbackClassifier);
-	}
+    /**
+     * Defaults the force refresh flag to false.
+     *
+     * @param key                the key
+     * @param rollbackClassifier the rollback {@link Classifier}
+     * @see DefaultRetryState#DefaultRetryState(Object, boolean, Classifier)
+     */
+    public DefaultRetryState(Object key, Classifier<? super Throwable, Boolean> rollbackClassifier) {
+        this(key, false, rollbackClassifier);
+    }
 
-	/**
-	 * Defaults the rollback classifier to null.
-	 * @see DefaultRetryState#DefaultRetryState(Object, boolean, Classifier)
-	 * @param key the key
-	 * @param forceRefresh whether to force a refresh
-	 */
-	public DefaultRetryState(Object key, boolean forceRefresh) {
-		this(key, forceRefresh, null);
-	}
+    /**
+     * Defaults the rollback classifier to null.
+     *
+     * @param key          the key
+     * @param forceRefresh whether to force a refresh
+     * @see DefaultRetryState#DefaultRetryState(Object, boolean, Classifier)
+     */
+    public DefaultRetryState(Object key, boolean forceRefresh) {
+        this(key, forceRefresh, null);
+    }
 
-	/**
-	 * Defaults the force refresh flag (to false) and the rollback classifier (to null).
-	 * @param key the key to use
-	 * @see DefaultRetryState#DefaultRetryState(Object, boolean, Classifier)
-	 */
-	public DefaultRetryState(Object key) {
-		this(key, false, null);
-	}
+    /**
+     * Defaults the force refresh flag (to false) and the rollback classifier (to null).
+     *
+     * @param key the key to use
+     * @see DefaultRetryState#DefaultRetryState(Object, boolean, Classifier)
+     */
+    public DefaultRetryState(Object key) {
+        this(key, false, null);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.batch.retry.IRetryState#getKey()
-	 */
-	public Object getKey() {
-		return key;
-	}
+    public Object getKey() {
+        return key;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.batch.retry.IRetryState#isForceRefresh()
-	 */
-	public boolean isForceRefresh() {
-		return forceRefresh;
-	}
+    public boolean isForceRefresh() {
+        return forceRefresh;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.batch.retry.RetryState#rollbackFor(java.lang.Throwable )
-	 */
-	public boolean rollbackFor(Throwable exception) {
-		if (rollbackClassifier == null) {
-			return true;
-		}
-		return rollbackClassifier.classify(exception);
-	}
+    public boolean rollbackFor(Throwable exception) {
+        if (rollbackClassifier == null) {
+            return true;
+        }
+        return rollbackClassifier.classify(exception);
+    }
 
-	@Override
-	public String toString() {
-		return String.format("[%s: key=%s, forceRefresh=%b]", getClass().getSimpleName(), key, forceRefresh);
-	}
-
+    @Override
+    public String toString() {
+        return String.format("[%s: key=%s, forceRefresh=%b]", getClass().getSimpleName(), key, forceRefresh);
+    }
 }

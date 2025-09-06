@@ -217,6 +217,8 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
             this.timeout = timeout;
             this.openWindow = openWindow;
             this.context = createDelegateContext(policy, parent);
+
+            // 表明这是一个全局的重试上下文
             setAttribute("state.global", true);
         }
 

@@ -19,7 +19,9 @@ package org.springframework.retry;
 import java.io.Serializable;
 
 /**
- * {@link RetryPolicy} 负责分配和管理 {@link RetryOperations} 所需的所有资源
+ * 重试策略接口
+ * <p>
+ * {@link RetryPolicy} 负责分配和管理 {@link RetryOperations} 所需的所有资源 {@link RetryContext}
  * {@link RetryPolicy} 使得重试操作能够感知其上下文 [RetryContext]。
  * 上下文[RetryContext]可以是SpringRetry框架的内部，例如支持嵌套重试，
  * 也可以是外部的，{@link RetryPolicy} 为不同平台的外部上下文提供统一的 API。
@@ -57,7 +59,7 @@ public interface RetryPolicy extends Serializable {
     void close(RetryContext context);
 
     /**
-     * 在回调失败之后，每次重试尝试都会调用一次
+     * 在回调失败之后，每次重试尝试都会调用一次，用于将异常注册到{@link RetryContext}中
      *
      * @param context   the current status object.
      * @param throwable the exception to throw

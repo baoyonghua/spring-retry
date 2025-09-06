@@ -99,7 +99,7 @@ public class RetryTemplateBuilderTests {
 		PolicyTuple policyTuple = PolicyTuple.extractWithAsserts(template);
 		assertThat(policyTuple.exceptionClassifierRetryPolicy).isInstanceOf(BinaryExceptionClassifierRetryPolicy.class);
 		BinaryExceptionClassifierRetryPolicy retryPolicy = (BinaryExceptionClassifierRetryPolicy) policyTuple.exceptionClassifierRetryPolicy;
-		BinaryExceptionClassifier classifier = retryPolicy.getExceptionClassifier();
+		BinaryExceptionClassifier classifier = retryPolicy.exceptionClassifier();
 		assertThat(classifier.classify(new FileNotFoundException())).isTrue();
 		assertThat(classifier.classify(new IllegalArgumentException())).isTrue();
 		assertThat(classifier.classify(new RuntimeException())).isFalse();
@@ -183,7 +183,7 @@ public class RetryTemplateBuilderTests {
 	private void assertDefaultClassifier(PolicyTuple policyTuple) {
 		assertThat(policyTuple.exceptionClassifierRetryPolicy).isInstanceOf(BinaryExceptionClassifierRetryPolicy.class);
 		BinaryExceptionClassifierRetryPolicy retryPolicy = (BinaryExceptionClassifierRetryPolicy) policyTuple.exceptionClassifierRetryPolicy;
-		BinaryExceptionClassifier classifier = retryPolicy.getExceptionClassifier();
+		BinaryExceptionClassifier classifier = retryPolicy.exceptionClassifier();
 		assertThat(classifier.classify(new Exception())).isTrue();
 		assertThat(classifier.classify(new Exception(new Error()))).isTrue();
 		assertThat(classifier.classify(new Error())).isFalse();

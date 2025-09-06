@@ -26,28 +26,33 @@ import org.springframework.retry.RetryContext;
  */
 public abstract class StatelessBackOffPolicy implements BackOffPolicy {
 
-	/**
-	 * Delegates directly to the {@link #doBackOff()} method without passing on the
-	 * {@link BackOffContext} argument which is not needed for stateless implementations.
-	 */
-	@Override
-	public final void backOff(BackOffContext backOffContext) throws BackOffInterruptedException {
-		doBackOff();
-	}
+    /**
+     * 直接调用 {@link #doBackOff（）} 方法，而不传递所需的 {@link BackOffContext} 参数，因为对于无状态实现来说 {@link BackOffContext} 是不必要的。
+     * <p>
+     * 因为对于无状态的回避策略而言，每次的退避调用都是相同的，都可能会暂停相同的时间。
+     */
+    @Override
+    public final void backOff(BackOffContext backOffContext) throws BackOffInterruptedException {
+        doBackOff();
+    }
 
-	/**
-	 * Returns '<code>null</code>'. Subclasses can add behaviour, e.g. initial sleep
-	 * before first attempt.
-	 */
-	@Override
-	public BackOffContext start(RetryContext status) {
-		return null;
-	}
+    /**
+     * Returns '<code>null</code>'. Subclasses can add behaviour, e.g. initial sleep
+     * before first attempt.
+     * 返回 '<code>null</code>'。代表其不需要使用上下文来存储退避状态。因为对于无状态的回避策略而言，每次的退避调用都是相同的，都可能会暂停相同的时间。
+     * <p>
+     * 子类可以添加行为，例如在第一次尝试之前进行一次初始休眠。
+     */
+    @Override
+    public BackOffContext start(RetryContext status) {
+        return null;
+    }
 
-	/**
-	 * Sub-classes should implement this method to perform the actual back off.
-	 * @throws BackOffInterruptedException if the backoff is interrupted
-	 */
-	protected abstract void doBackOff() throws BackOffInterruptedException;
+    /**
+     * 子类应实现此方法以执行实际的退避操作。
+     *
+     * @throws BackOffInterruptedException if the backoff is interrupted
+     */
+    protected abstract void doBackOff() throws BackOffInterruptedException;
 
 }

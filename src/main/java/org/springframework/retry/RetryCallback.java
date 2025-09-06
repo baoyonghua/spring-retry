@@ -17,35 +17,37 @@
 package org.springframework.retry;
 
 /**
- * Callback interface for an operation that can be retried using a
- * {@link RetryOperations}.
+ * 一个回调接口
+ * <p>
+ * 它用来表示一个操作，这个操作可能会失败并且需要重试。
+ * 在具体实现中，需要使用{@link RetryOperations} 进行重试。
  *
- * @param <T> the type of object returned by the callback
- * @param <E> the type of exception it declares may be thrown
+ * @param <T> 回调函数返回的对象的类型。
+ * @param <E> RetryCallback可能会被抛出异常的类型
  * @author Rob Harrop
  * @author Dave Syer
  * @author Artem Bilan
  */
 public interface RetryCallback<T, E extends Throwable> {
 
-	/**
-	 * Execute an operation with retry semantics. Operations should generally be
-	 * idempotent, but implementations may choose to implement compensation semantics when
-	 * an operation is retried.
-	 * @param context the current retry context.
-	 * @return the result of the successful operation.
-	 * @throws E of type E if processing fails
-	 */
-	T doWithRetry(RetryContext context) throws E;
 
-	/**
-	 * A logical identifier for this callback to distinguish retries around business
-	 * operations.
-	 * @return the identifier for this callback.
-	 * @since 2.0.6
-	 */
-	default String getLabel() {
-		return null;
-	}
+    /**
+     * 执行一个带有重试语义的操作。操作通常应当是幂等的，但实现时也可以选择在重试时实现补偿语义。
+     *
+     * @param context 当前的重试上下文。
+     * @return 成功操作的结果。
+     * @throws E 如果处理失败会抛出类型为E的异常
+     */
+    T doWithRetry(RetryContext context) throws E;
+
+    /**
+     * 用于区分业务操作中重试的此回调的逻辑标识符。
+     *
+     * @return 此回调函数的标识符
+     * @since 2.0.6
+     */
+    default String getLabel() {
+        return null;
+    }
 
 }

@@ -129,7 +129,7 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
      * <p>
      * 示例说明：
      * <pre class="code">
-     *     假设你有一个服务方法，每次传入的参数是订单号。你希望只有在订单号是新的（之前没处理过）时，才重置重试状态，否则继续之前的重试。
+     *     假设你有一个Service方法，每次传入的参数是订单号。你希望只有在订单号是新的（之前没处理过）时，才重置重试状态，否则继续之前的重试。
      *     此时你可以实现一个 `NewMethodArgumentsIdentifier`，比如：
      *     public class OrderIdNewIdentifier implements NewMethodArgumentsIdentifier {
      *         private Set<Object> processedOrderIds = new HashSet<>();
@@ -192,12 +192,16 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
         // 通过 keyGenerator 来创建唯一键，用于标识 RetryState
         Object key = createKey(invocation, defaultKey);
+        // 只有在 newMethodArgumentsIdentifier 存在且识别到参数为新参数时，才强制刷新重试状态
         boolean forceRefresh = this.newMethodArgumentsIdentifier != null && this.newMethodArgumentsIdentifier.isNew(args);
+        // 对于有状态重试，需要创建一个 RetryState 来跟踪重试状态
         RetryState retryState = new DefaultRetryState(key, forceRefresh, this.rollbackClassifier);
 
-        // 调用目标方法，并在必要时进行重试
+        // 将方法调用包装在有状态重试回调中，以便于在必要时进行重试
         StatefulMethodInvocationRetryCallback callback = new StatefulMethodInvocationRetryCallback(invocation, label);
+        // 如果提供了恢复器，则创建一个恢复回调，用于在重试耗尽时进行恢复
         ItemRecovererCallback recovererCallback = this.recoverer != null ? new ItemRecovererCallback(args, this.recoverer) : null;
+        // 调用目标方法, 并在必要时进行重试
         Object result = this.retryOperations.execute(callback, recovererCallback, retryState);
 
         if (this.logger.isDebugEnabled()) {
@@ -210,6 +214,7 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
     /**
      * 通过 `keyGenerator` 来创建唯一键，用于标识{@link RetryState}
+     *
      * @param invocation
      * @param defaultKey
      * @return
@@ -234,6 +239,9 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
     /**
      * 默认的有状态的 `MethodInvocation` 重试回调实现。
+     * <p>
+     * 它包装了方法调用MethodInvocation
+     * </p>
      *
      * @author Dave Syer
      */
@@ -258,9 +266,9 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
     }
 
     /**
+     * 默认的 `RecoveryCallback` 实现，它使用 `MethodInvocationRecoverer` 来恢复失败的条目。
      *
      * @author Dave Syer
-     *
      */
     private record ItemRecovererCallback(Object[] args, MethodInvocationRecoverer<?> recoverer)
             implements RecoveryCallback<Object> {
@@ -275,6 +283,7 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
         @Override
         public Object recover(RetryContext context) {
+            // 调用恢复器来进行恢复
             return this.recoverer.recover(this.args, context.getLastThrowable());
         }
     }

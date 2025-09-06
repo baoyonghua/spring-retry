@@ -19,26 +19,24 @@ package org.springframework.classify;
 import java.io.Serializable;
 
 /**
- * Interface for a classifier. At its simplest a {@link Classifier} is just a map from
- * objects of one type to objects of another type.
+ * 分类器接口。最简单情况下，{@link Classifier} 就是将一种类型的对象映射为另一种类型的对象。
+ * <p>
+ * 注意，只有当参数类型本身可序列化时，实现类才能被序列化。
  *
- * Note that implementations can only be serializable if the parameter types are
- * themselves serializable.
- *
+ * @param <C> 需要分类的事物的类型
+ * @param <T> 分类器的输出类型，将输入类型映射为输出类型
  * @author Dave Syer
- * @param <C> the type of the thing to classify
- * @param <T> the output of the classifier
  *
  */
 public interface Classifier<C, T> extends Serializable {
 
-	/**
-	 * Classify the given object and return an object of a different type, possibly an
-	 * enumerated type.
-	 * @param classifiable the input object. Can be null.
-	 * @return an object. Can be null, but implementations should declare if this is the
-	 * case.
-	 */
-	T classify(C classifiable);
+    /**
+     * 对给定的对象进行分类，并返回一个不同类型（可能是一个枚举类型）的对象。
+     *
+     * @param classifiable the input object. Can be null.
+     * @return an object. Can be null, but implementations should declare if this is the
+     * case.
+     */
+    T classify(C classifiable);
 
 }

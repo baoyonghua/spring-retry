@@ -21,126 +21,131 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link Classifier} for exceptions that has only two classes (true and false).
- * Classifies objects according to their inheritance relation with the supplied types. If
- * the object to be classified is one of the provided types, or is a subclass of one of
- * the types, then the non-default value is returned (usually true).
+ * 一个用于异常类型的 {@link Classifier}，它只有两种分类（true 和 false）。
+ * 它可以根据异常类型的继承关系来对提供的异常类型进行分类。
+ * 如果要进行分类的对象是提供类型之一，或是其子类，则返回true
  *
- * @see SubclassClassifier
  * @author Dave Syer
  * @author Gary Russell
+ * @see SubclassClassifier
  *
  */
 @SuppressWarnings("serial")
 public class BinaryExceptionClassifier extends SubclassClassifier<Throwable, Boolean> {
 
-	private boolean traverseCauses;
+    private boolean traverseCauses;
 
-	public static BinaryExceptionClassifierBuilder builder() {
-		return new BinaryExceptionClassifierBuilder();
-	}
+    public static BinaryExceptionClassifierBuilder builder() {
+        return new BinaryExceptionClassifierBuilder();
+    }
 
-	public static BinaryExceptionClassifier defaultClassifier() {
-		// create new instance for each call due to mutability
-		return new BinaryExceptionClassifier(
-				Collections.<Class<? extends Throwable>, Boolean>singletonMap(Exception.class, true), false);
-	}
+    public static BinaryExceptionClassifier defaultClassifier() {
+        // create new instance for each call due to mutability
+        return new BinaryExceptionClassifier(
+                Collections.<Class<? extends Throwable>, Boolean>singletonMap(Exception.class, true), false);
+    }
 
-	/**
-	 * Create a binary exception classifier with the provided default value.
-	 * @param defaultValue defaults to false
-	 */
-	public BinaryExceptionClassifier(boolean defaultValue) {
-		super(defaultValue);
-	}
+    /**
+     * Create a binary exception classifier with the provided default value.
+     *
+     * @param defaultValue defaults to false
+     */
+    public BinaryExceptionClassifier(boolean defaultValue) {
+        super(defaultValue);
+    }
 
-	/**
-	 * Create a binary exception classifier with the provided classes and their
-	 * subclasses. The mapped value for these exceptions will be the one provided (which
-	 * will be the opposite of the default).
-	 * @param exceptionClasses the exceptions to classify among
-	 * @param value the value to classify
-	 */
-	public BinaryExceptionClassifier(Collection<Class<? extends Throwable>> exceptionClasses, boolean value) {
-		this(!value);
-		if (exceptionClasses != null) {
-			Map<Class<? extends Throwable>, Boolean> map = new HashMap<>();
-			for (Class<? extends Throwable> type : exceptionClasses) {
-				map.put(type, !getDefault());
-			}
-			setTypeMap(map);
-		}
-	}
+    /**
+     * Create a binary exception classifier with the provided classes and their
+     * subclasses. The mapped value for these exceptions will be the one provided (which
+     * will be the opposite of the default).
+     *
+     * @param exceptionClasses the exceptions to classify among
+     * @param value            the value to classify
+     */
+    public BinaryExceptionClassifier(Collection<Class<? extends Throwable>> exceptionClasses, boolean value) {
+        this(!value);
+        if (exceptionClasses != null) {
+            Map<Class<? extends Throwable>, Boolean> map = new HashMap<>();
+            for (Class<? extends Throwable> type : exceptionClasses) {
+                map.put(type, !getDefault());
+            }
+            setTypeMap(map);
+        }
+    }
 
-	/**
-	 * Create a binary exception classifier with the default value false and value mapping
-	 * true for the provided classes and their subclasses.
-	 * @param exceptionClasses the exception types to throw
-	 */
-	public BinaryExceptionClassifier(Collection<Class<? extends Throwable>> exceptionClasses) {
-		this(exceptionClasses, true);
-	}
+    /**
+     * Create a binary exception classifier with the default value false and value mapping
+     * true for the provided classes and their subclasses.
+     *
+     * @param exceptionClasses the exception types to throw
+     */
+    public BinaryExceptionClassifier(Collection<Class<? extends Throwable>> exceptionClasses) {
+        this(exceptionClasses, true);
+    }
 
-	/**
-	 * Create a binary exception classifier using the given classification map and a
-	 * default classification of false.
-	 * @param typeMap the map of types
-	 */
-	public BinaryExceptionClassifier(Map<Class<? extends Throwable>, Boolean> typeMap) {
-		this(typeMap, false);
-	}
+    /**
+     * Create a binary exception classifier using the given classification map and a
+     * default classification of false.
+     *
+     * @param typeMap the map of types
+     */
+    public BinaryExceptionClassifier(Map<Class<? extends Throwable>, Boolean> typeMap) {
+        this(typeMap, false);
+    }
 
-	/**
-	 * Create a binary exception classifier using the given classification map and the
-	 * given value for default class.
-	 * @param defaultValue the default value to use
-	 * @param typeMap the map of types to classify
-	 */
-	public BinaryExceptionClassifier(Map<Class<? extends Throwable>, Boolean> typeMap, boolean defaultValue) {
-		super(typeMap, defaultValue);
-	}
+    /**
+     * Create a binary exception classifier using the given classification map and the
+     * given value for default class.
+     *
+     * @param defaultValue the default value to use
+     * @param typeMap      the map of types to classify
+     */
+    public BinaryExceptionClassifier(Map<Class<? extends Throwable>, Boolean> typeMap, boolean defaultValue) {
+        super(typeMap, defaultValue);
+    }
 
-	/**
-	 * Create a binary exception classifier.
-	 * @param defaultValue the default value to use
-	 * @param typeMap the map of types to classify
-	 * @param traverseCauses if true, throwable's causes will be inspected to find
-	 * non-default class
-	 */
-	public BinaryExceptionClassifier(Map<Class<? extends Throwable>, Boolean> typeMap, boolean defaultValue,
-			boolean traverseCauses) {
-		super(typeMap, defaultValue);
-		this.traverseCauses = traverseCauses;
-	}
+    /**
+     * Create a binary exception classifier.
+     *
+     * @param defaultValue   the default value to use
+     * @param typeMap        the map of types to classify
+     * @param traverseCauses if true, throwable's causes will be inspected to find
+     *                       non-default class
+     */
+    public BinaryExceptionClassifier(Map<Class<? extends Throwable>, Boolean> typeMap, boolean defaultValue,
+                                     boolean traverseCauses) {
+        super(typeMap, defaultValue);
+        this.traverseCauses = traverseCauses;
+    }
 
-	public void setTraverseCauses(boolean traverseCauses) {
-		this.traverseCauses = traverseCauses;
-	}
+    public void setTraverseCauses(boolean traverseCauses) {
+        this.traverseCauses = traverseCauses;
+    }
 
-	@Override
-	public Boolean classify(Throwable classifiable) {
-		Boolean classified = super.classify(classifiable);
-		if (!this.traverseCauses) {
-			return classified;
-		}
+    @Override
+    public Boolean classify(Throwable classifiable) {
+        Boolean classified = super.classify(classifiable);
+        if (!this.traverseCauses) {
+            return classified;
+        }
 
-		/*
-		 * If the result is the default, we need to find out if it was by default or so
-		 * configured; if default, try the cause(es).
-		 */
-		if (classified.equals(this.getDefault())) {
-			Throwable cause = classifiable;
-			do {
-				if (this.getClassified().containsKey(cause.getClass())) {
-					return classified; // non-default classification
-				}
-				cause = cause.getCause();
-				classified = super.classify(cause);
-			}
-			while (cause != null && classified.equals(this.getDefault()));
-		}
+        /*
+         * If the result is the default, we need to find out if it was by default or so
+         * configured; if default, try the cause(es).
+         */
+        if (classified.equals(this.getDefault())) {
+            Throwable cause = classifiable;
+            do {
+                if (this.getClassified().containsKey(cause.getClass())) {
+                    return classified; // non-default classification
+                }
+                cause = cause.getCause();
+                classified = super.classify(cause);
+            }
+            while (cause != null && classified.equals(this.getDefault()));
+        }
 
-		return classified;
-	}
+        return classified;
+    }
 
 }

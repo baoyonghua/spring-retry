@@ -20,8 +20,10 @@ import org.springframework.core.AttributeAccessor;
 import org.springframework.lang.Nullable;
 
 /**
- * 重试上下文
- * 对正在进行的重试操作提供低层级访问。通常客户端不需要使用，但可以用于改变重试的过程，例如强制提前终止。
+ * 重试上下文, 用于维护重试操作一些关键信息，包括：已重试次数、最后一次抛出的异常等。
+ * <p>
+ * RetryContext为正在进行的重试操作提供低层级访问。通常客户端不需要使用它，但也可以使用它来改变重试的过程，例如强制提前终止。
+ * </p>
  *
  * @author Dave Syer
  * @author Emanuele Ivaldi

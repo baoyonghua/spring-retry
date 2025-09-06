@@ -22,44 +22,36 @@ import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.context.RetryContextSupport;
 
 /**
- * A policy, that is based on {@link BinaryExceptionClassifier}. Usually, binary
- * classification is enough for retry purposes. If you need more flexible classification,
- * use {@link ExceptionClassifierRetryPolicy}.
+ *
+ * 一个基于 {@link BinaryExceptionClassifier} 的重试策略。
+ * 通常，二元分类对于重试场景已经足够。如果你需要更灵活的分类，请使用 {@link ExceptionClassifierRetryPolicy}。
  *
  * @author Aleksandr Shamukov
  */
 @SuppressWarnings("serial")
-public class BinaryExceptionClassifierRetryPolicy implements RetryPolicy {
+public record BinaryExceptionClassifierRetryPolicy(
+        BinaryExceptionClassifier exceptionClassifier) implements RetryPolicy {
 
-	private final BinaryExceptionClassifier exceptionClassifier;
 
-	public BinaryExceptionClassifierRetryPolicy(BinaryExceptionClassifier exceptionClassifier) {
-		this.exceptionClassifier = exceptionClassifier;
-	}
+    @Override
+    public boolean canRetry(RetryContext context) {
+        Throwable t = context.getLastThrowable();
+        return t == null || exceptionClassifier.classify(t);
+    }
 
-	public BinaryExceptionClassifier getExceptionClassifier() {
-		return exceptionClassifier;
-	}
+    @Override
+    public void close(RetryContext status) {
+    }
 
-	@Override
-	public boolean canRetry(RetryContext context) {
-		Throwable t = context.getLastThrowable();
-		return t == null || exceptionClassifier.classify(t);
-	}
+    @Override
+    public void registerThrowable(RetryContext context, Throwable throwable) {
+        RetryContextSupport simpleContext = ((RetryContextSupport) context);
+        simpleContext.registerThrowable(throwable);
+    }
 
-	@Override
-	public void close(RetryContext status) {
-	}
-
-	@Override
-	public void registerThrowable(RetryContext context, Throwable throwable) {
-		RetryContextSupport simpleContext = ((RetryContextSupport) context);
-		simpleContext.registerThrowable(throwable);
-	}
-
-	@Override
-	public RetryContext open(RetryContext parent) {
-		return new RetryContextSupport(parent);
-	}
+    @Override
+    public RetryContext open(RetryContext parent) {
+        return new RetryContextSupport(parent);
+    }
 
 }
